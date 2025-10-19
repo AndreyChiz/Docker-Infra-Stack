@@ -23,9 +23,6 @@ services:
       # ────────────── certificatesResolvers ──────────────
       - "--certificatesresolvers.le.acme.email=xdg3@ail.com"
       - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
-
-      
-
       - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
 
       # ────────────── providers ──────────────
@@ -42,9 +39,10 @@ services:
       - "--log.format=common"
       - "--accesslog=true"
       - "--accesslog.format=common"
-    labels:
+
 
       # ────────────── dashboard router / middleware ──────────────
+    labels:
       - "traefik.enable=true"
 
       - "traefik.http.routers.dashboard.rule=Host(`dev.chiz.work.gd`)"
