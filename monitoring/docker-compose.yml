@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - proxy
+    # порт 9090 не пробрасываем наружу — он доступен только из сети monitoring
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"  # только этот доступен снаружи
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - proxy
+    depends_on:
+      - prometheus
+
+  loki:
+    image: grafana/loki
+    networks:
+      - proxy
+    volumes:
+      - ./loki/config.yaml:/etc/loki/config.yaml:ro
+    command: -config.file=/etc/loki/config.yaml
+
+  promtail:
+    image: grafana/promtail
+    networks:
+      - proxy
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/log/nestjs:/var/log/nestjs:ro
+    command: -config.file=/etc/promtail/config.yaml
+
+  tempo:
+    image: grafana/tempo
+    networks:
+      - proxy
+    volumes:
+      - ./tempo/tempo-config.yaml:/etc/tempo-config.yaml:ro
+    command: ["--config.file=/etc/tempo-config.yaml"]
+
+volumes:
+  grafana-storage:
+
+networks:
+  proxy:
+    driver: bridge
+    

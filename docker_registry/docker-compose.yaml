@@ -1,9 +1,3 @@
-version: "3.8"
-
-networks:
-  proxy:
-    external: true
-
 services:
   registry:
     image: registry:2
@@ -59,3 +53,9 @@ services:
       - "traefik.http.routers.registry-ui.middlewares=strip-ui"
     networks:
       - proxy
+
+
+networks:
+  proxy:
+    driver: bridge
+    name: proxy
