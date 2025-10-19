@@ -36,10 +36,28 @@ services:
       - "--api.dashboard=true"
       - "--api.insecure=false"
       - "--log.level=DEBUG"
-      - "--log.format=common"
+      # - "--log.format=common"
+      - "--log.format=genericCLF"
       - "--accesslog=true"
-      - "--accesslog.format=common"
+      # - "--accesslog.format=common"
+      - "--accesslog.format=comgenericCLFmon"
 
+      # ────────────── Metriks ──────────────
+
+      # - "--entrypoints.metrics.address=:8082"
+      # ... other command arguments ...
+      - "--metrics.prometheus=true"
+      # Optionally change the entry point metrics are exposed on (defaults to 'traefik')
+      - "--metrics.prometheus.entrypoint=metrics"
+      # Add labels to metrics for routers/services (can increase cardinality)
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addserviceslabels=true"
+
+      # ────────────── Tracing ──────────────
+
+      - "--tracing.otel=true"
+      - "--tracing.otel.grpcendpoint=otel-collector:4317" # Adjust endpoint as needed
+      - "--tracing.otel.httpendpoint=otel-collector.observability:4318" # Adjust endpoint as needed
 
       # ────────────── dashboard router / middleware ──────────────
     labels:
