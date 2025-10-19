@@ -1,0 +1,66 @@
+services:
+  traefik:
+    image: "traefik:v3.5.3"
+    container_name: "traefik"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    command:
+      # ────────────── entryPoints ──────────────
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls.certresolver=le"
+
+      # ────────────── certificatesResolvers ──────────────
+      - "--certificatesresolvers.le.acme.email=xdg3@ail.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+
+      
+
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+
+      # ────────────── providers ──────────────
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--providers.file.directory=/etc/traefik/"
+      - "--providers.file.watch=true"
+
+      # ────────────── api / logs ──────────────
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--log.level=DEBUG"
+      - "--log.format=common"
+      - "--accesslog=true"
+      - "--accesslog.format=common"
+    labels:
+
+      # ────────────── dashboard router / middleware ──────────────
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.dashboard.rule=Host(`dev.chiz.work.gd`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls=true"
+      
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=achi:$$apr1$$pmhCKJMl$$r.2PcOMfvwB27/toVojgW0"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./data/dynamic:/etc/traefik/:ro"
+      - "./data/letsencrypt/acme.json:/letsencrypt/acme.json" # RW
+      - "./data/certs:/certs:ro"
+
+networks:
+  proxy:
+    name: proxy

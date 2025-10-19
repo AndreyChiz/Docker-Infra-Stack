@@ -1,0 +1,61 @@
+version: "3.8"
+
+networks:
+  proxy:
+    external: true
+
+services:
+  registry:
+    image: registry:2
+    container_name: chiz-docker-registry
+    restart: always
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: "Private chiz Docker Registry"
+      REGISTRY_STORAGE_DELETE_ENABLED: true
+    volumes:
+      - ./registry_data:/var/lib/registry
+      - ./auth:/auth:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry.rule=Host(`reg.chiz.work.gd`)"
+      - "traefik.http.routers.registry.entrypoints=websecure"
+      - "traefik.http.services.registry.loadbalancer.server.port=5000"
+      - "traefik.http.routers.registry.tls.certresolver=le"
+
+      # Middleware: large upload limit
+      - "traefik.http.middlewares.registry-buffer.buffering.maxRequestBodyBytes=10000000000"
+      - "traefik.http.routers.registry.middlewares=registry-buffer,registry-cors"
+
+      # Middleware: CORS
+      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowMethods=GET,POST,PUT,PATCH,DELETE,OPTIONS,PUSH,PULL"
+      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowHeaders=Authorization,Content-Type"
+      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowOriginList=https://reg.chiz.work.gd"
+      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.registry-cors.headers.accessControlMaxAge=1728000"
+
+    networks:
+      - proxy
+
+  registry-ui:
+    image: joxit/docker-registry-ui:latest
+    container_name: chiz-docker-registry-ui
+    restart: always
+    environment:
+      REGISTRY_TITLE: chiz_registry
+      REGISTRY_URL: https://reg.chiz.work.gd
+      REGISTRY_BASIC_AUTH: "true"
+      REGISTRY_UI_BASE: /ui/
+    depends_on:
+      - registry
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry-ui.rule=Host(`reg.chiz.work.gd`) && PathPrefix(`/ui`)"
+      - "traefik.http.routers.registry-ui.entrypoints=websecure"
+      - "traefik.http.services.registry-ui.loadbalancer.server.port=80"
+      - "traefik.http.routers.registry-ui.tls.certresolver=le"
+      - "traefik.http.middlewares.strip-ui.stripprefix.prefixes=/ui"
+      - "traefik.http.routers.registry-ui.middlewares=strip-ui"
+    networks:
+      - proxy
