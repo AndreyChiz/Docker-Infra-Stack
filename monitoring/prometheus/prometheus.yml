@@ -2,12 +2,26 @@ global:
   scrape_interval: 5s
 
 scrape_configs:
-  - job_name: 'nestjs-api'
+  # ───────────── Traefik ─────────────
+  - job_name: "traefik"
     static_configs:
-      - targets: ['host.docker.internal:3000']
+      - targets: ["traefik:8082"] # если ты используешь entrypoint metrics на 8082
 
-
-
-  - job_name: 'traefik'
+  # ───────────── PostgreSQL ─────────────
+  - job_name: "postgres"
     static_configs:
-      - targets: ['traefik:8082']
+      - targets: ["postgres_exporter:9187"]
+
+  # ───────────── Node Exporter ─────────────
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['monitoring-node_exporter:9100']
+  # ───────────── cAdvisor ─────────────
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['monitoring-cadvisor:8080']
+
+  
+  - job_name: 'promtail'
+    static_configs:
+      - targets: ['monitoring-promtail:9080']

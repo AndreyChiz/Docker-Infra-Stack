@@ -1,0 +1,33 @@
+services:
+  postgres:
+    container_name: postgres_db
+    image: postgres:16-alpine3.19
+    environment:
+      POSTGRES_DB: "xi_db"
+      POSTGRES_USER: "achi"
+      POSTGRES_PASSWORD: "123"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - proxy
+
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://achi:123@postgres_db:5432/?sslmode=disable"
+
+    networks:
+      - proxy
+    depends_on:
+      - postgres
+
+volumes:
+  db-data:
+
+networks:
+  proxy:
+    driver: bridge
+    name: proxy

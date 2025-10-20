@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   prometheus:
     image: prom/prometheus
@@ -20,6 +18,12 @@ services:
       - proxy
     depends_on:
       - prometheus
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.grafana.rule=Host(`grafana.chiz.work.gd`)"
+    - "traefik.http.routers.grafana.entrypoints=websecure"
+    - "traefik.http.routers.grafana.tls=true"
+    - "traefik.http.routers.grafana.tls.certresolver=le"
 
   loki:
     image: grafana/loki
@@ -27,7 +31,7 @@ services:
       - proxy
     volumes:
       - ./loki/config.yaml:/etc/loki/config.yaml:ro
-    command: -config.file=/etc/loki/config.yaml
+
 
   promtail:
     image: grafana/promtail
@@ -46,10 +50,41 @@ services:
       - ./tempo/tempo-config.yaml:/etc/tempo-config.yaml:ro
     command: ["--config.file=/etc/tempo-config.yaml"]
 
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: monitoring-node_exporter
+    restart: unless-stopped
+    networks:
+      - proxy
+    privileged: true
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: monitoring-cadvisor
+    restart: unless-stopped
+    networks:
+      - proxy
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8083:8080"
+
 volumes:
   grafana-storage:
 
 networks:
   proxy:
     driver: bridge
-    
+    name: proxy
