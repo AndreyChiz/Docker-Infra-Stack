@@ -9,10 +9,47 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  - job_name: nestjs-logs
+  # ───────────── System logs ─────────────
+  - job_name: system
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
+        labels:
+          job: system
+          __path__: /var/log/**/*.log
+
+  # ───────────── Journal (systemd logs) ─────────────
+  - job_name: journal
+    journal:
+      json: false
+      max_age: 12h
+      labels:
+        job: systemd
+    relabel_configs:
+      - source_labels: ['__journal__systemd_unit']
+        target_label: 'unit'
+
+  # ───────────── Docker container logs (stdout/stderr) ─────────────
+  - job_name: docker
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*.log
+    pipeline_stages:
+      - docker: {}
+
+  # ───────────── Containerd logs ─────────────
+  - job_name: containerd
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: containerd
+          __path__: /run/containerd/**/*.log
+
+  # ───────────── Custom NestJS logs ─────────────
+  - job_name: nestjs
+    static_configs:
+      - targets: [localhost]
         labels:
           job: nestjs
           __path__: /var/log/nestjs/*.log

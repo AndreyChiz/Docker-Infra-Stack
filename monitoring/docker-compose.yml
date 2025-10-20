@@ -34,12 +34,20 @@ services:
 
 
   promtail:
-    image: grafana/promtail
+    image: grafana/promtail:latest
     networks:
       - proxy
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
     volumes:
       - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
-      - /var/log/nestjs:/var/log/nestjs:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/lib/containerd:/var/lib/containerd:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
     command: -config.file=/etc/promtail/config.yaml
 
   tempo:
