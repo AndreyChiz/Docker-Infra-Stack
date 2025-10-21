@@ -10,7 +10,7 @@ services:
   grafana:
     image: grafana/grafana
     ports:
-      - "3001:3000"  # только этот доступен снаружи
+      - "3001:3000" # только этот доступен снаружи
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
@@ -19,11 +19,11 @@ services:
     depends_on:
       - prometheus
     labels:
-    - "traefik.enable=true"
-    - "traefik.http.routers.grafana.rule=Host(`grafana.chiz.work.gd`)"
-    - "traefik.http.routers.grafana.entrypoints=websecure"
-    - "traefik.http.routers.grafana.tls=true"
-    - "traefik.http.routers.grafana.tls.certresolver=le"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.chiz.work.gd`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=le"
 
   loki:
     image: grafana/loki
@@ -31,7 +31,6 @@ services:
       - proxy
     volumes:
       - ./loki/config.yaml:/etc/loki/config.yaml:ro
-
 
   promtail:
     image: grafana/promtail:latest
@@ -70,8 +69,8 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
 
   cadvisor:
@@ -81,6 +80,9 @@ services:
     networks:
       - proxy
     privileged: true
+    command:
+      - "--housekeeping_interval=15s"
+
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
