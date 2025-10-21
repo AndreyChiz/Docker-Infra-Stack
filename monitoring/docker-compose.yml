@@ -31,6 +31,8 @@ services:
       - proxy
     volumes:
       - ./loki/config.yaml:/etc/loki/config.yaml:ro
+    ports:
+      - "3100:3100"
 
   promtail:
     image: grafana/promtail:latest
@@ -43,8 +45,12 @@ services:
     volumes:
       - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
       - /var/log:/var/log:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+
+      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
       - /var/lib/containerd:/var/lib/containerd:ro
+      
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
     command: -config.file=/etc/promtail/config.yaml

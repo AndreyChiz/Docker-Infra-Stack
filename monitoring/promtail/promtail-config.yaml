@@ -25,18 +25,30 @@ scrape_configs:
       labels:
         job: systemd
     relabel_configs:
-      - source_labels: ['__journal__systemd_unit']
-        target_label: 'unit'
+      - source_labels: ["__journal__systemd_unit"]
+        target_label: "unit"
 
   # ───────────── Docker container logs (stdout/stderr) ─────────────
-  - job_name: docker
-    static_configs:
-      - targets: [localhost]
-        labels:
-          job: docker
-          __path__: /var/lib/docker/containers/*/*.log
-    pipeline_stages:
-      - docker: {}
+
+  - job_name: docker-services
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 10s
+    relabel_configs:
+      # Превращаем имя контейнера из /postgres -> postgres
+      - source_labels: [__meta_docker_container_name]
+        regex: "/(.+)"
+        target_label: service
+      # Имя образа
+      - source_labels: [__meta_docker_container_image]
+        target_label: image
+      # ID контейнера
+      - source_labels: [__meta_docker_container_id]
+        target_label: container_id
+      # Все в один job для удобства
+      - target_label: job
+        replacement: docker-services
+
 
   # ───────────── Containerd logs ─────────────
   - job_name: containerd
