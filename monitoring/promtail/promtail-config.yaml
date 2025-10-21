@@ -16,6 +16,11 @@ scrape_configs:
         labels:
           job: system
           __path__: /var/log/**/*.log
+    pipeline_stages:
+      - regex:
+          expression: 'trace[_-]?id[=: ](?P<trace_id>[a-f0-9-]{16,32})'
+      - labels:
+          trace_id:  
 
   # ───────────── Journal (systemd logs) ─────────────
   - job_name: journal
@@ -27,6 +32,11 @@ scrape_configs:
     relabel_configs:
       - source_labels: ["__journal__systemd_unit"]
         target_label: "unit"
+    pipeline_stages:
+      - regex:
+          expression: 'trace[_-]?id[=: ](?P<trace_id>[a-f0-9-]{16,32})'
+      - labels:
+          trace_id:  
 
   # ───────────── Docker container logs (stdout/stderr) ─────────────
 
@@ -48,6 +58,11 @@ scrape_configs:
       # Все в один job для удобства
       - target_label: job
         replacement: docker-services
+    pipeline_stages:
+      - regex:
+          expression: 'trace[_-]?id[=: ](?P<trace_id>[a-f0-9-]{16,32})'
+      - labels:
+          trace_id:  
 
 
   # ───────────── Containerd logs ─────────────
@@ -57,6 +72,11 @@ scrape_configs:
         labels:
           job: containerd
           __path__: /run/containerd/**/*.log
+    pipeline_stages:
+      - regex:
+          expression: 'trace[_-]?id[=: ](?P<trace_id>[a-f0-9-]{16,32})'
+      - labels:
+          trace_id:  
 
   # ───────────── Custom NestJS logs ─────────────
   - job_name: nestjs
@@ -65,3 +85,8 @@ scrape_configs:
         labels:
           job: nestjs
           __path__: /var/log/nestjs/*.log
+    pipeline_stages:
+      - regex:
+          expression: 'trace[_-]?id[=: ](?P<trace_id>[a-f0-9-]{16,32})'
+      - labels:
+          trace_id:  

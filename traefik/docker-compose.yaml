@@ -7,7 +7,7 @@ services:
       - no-new-privileges:true
     networks:
       - proxy
- 
+
     ports:
       - "80:80"
       - "443:443"
@@ -53,14 +53,18 @@ services:
       # Add labels to metrics for routers/services (can increase cardinality)
       - "--metrics.prometheus.addrouterslabels=true"
       - "--metrics.prometheus.addserviceslabels=true"
-       #dfgdf21CC
-      
 
       # ────────────── Tracing ──────────────
 
-      # - "--tracing.otlp=true"
-      # - "--tracing.otlp.grpcendpoint=otlp-collector:4317" # Adjust endpoint as needed
-      # - "--tracing.otlp.httpendpoint=otlp-collector.observability:4318" # Adjust endpoint as needed
+
+      - "--tracing.otlp=true"
+      - "--tracing.otlp.grpc.insecure=true"
+      - "--tracing.serviceName=traefik"
+      - "--tracing.otlp.grpc.endpoint=tempo:4317"   # gRPC OTLP
+      - "--tracing.otlp.http.endpoint=tempo:4318"   # HTTP OTLP (необязательно)
+      - "--tracing.sampleRate=1.0"
+
+
 
       # ────────────── dashboard router / middleware ──────────────
     labels:
@@ -70,7 +74,7 @@ services:
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
-      
+
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=achi:$$apr1$$pmhCKJMl$$r.2PcOMfvwB27/toVojgW0"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
 
