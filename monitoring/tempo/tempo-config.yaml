@@ -1,9 +1,11 @@
 server:
   http_listen_port: 3200
   grpc_listen_port: 55680
+  log_level: info
 
 auth_enabled: false
 
+# Single-node режим: используем inmemory ring для дистрибьютора и ингестера
 distributor:
   ring:
     kvstore:
@@ -12,9 +14,9 @@ distributor:
     otlp:
       protocols:
         grpc:
-          endpoint: 0.0.0.0:4317
+          endpoint: 0.0.0.0:4317 # Traefik OTLP gRPC
         http:
-          endpoint: 0.0.0.0:4318
+          endpoint: 0.0.0.0:4318 # Traefik OTLP HTTP
 
 ingester:
   lifecycler:
@@ -35,3 +37,11 @@ storage:
     backend: local
     local:
       path: /tmp/tempo
+
+metrics_generator:
+  storage:
+    path: /var/tempo/metrics
+
+# query_frontend:
+#   # включаем кэш только при необходимости
+#   max_outstanding_per_tenant: 20
