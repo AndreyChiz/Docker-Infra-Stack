@@ -2,7 +2,7 @@ services:
   registry:
     image: registry:2
     container_name: chiz-docker-registry
-    restart: always
+    restart: unless-stopped
     environment:
       REGISTRY_AUTH: htpasswd
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
@@ -35,7 +35,7 @@ services:
   registry-ui:
     image: joxit/docker-registry-ui:latest
     container_name: chiz-docker-registry-ui
-    restart: always
+    restart: unless-stopped
     environment:
       REGISTRY_TITLE: chiz_registry
       REGISTRY_URL: https://reg.chiz.work.gd
@@ -53,7 +53,6 @@ services:
       - "traefik.http.routers.registry-ui.middlewares=strip-ui"
     networks:
       - proxy
-
 
 networks:
   proxy:
