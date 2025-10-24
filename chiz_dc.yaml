@@ -1,7 +1,7 @@
 services:
   gateway:
     image: reg.chiz.work.gd/gateway:latest
-    container_name: gateway
+    container_name: gateway_test
     restart: unless-stopped
     networks:
       - proxy
@@ -21,4 +21,3 @@ networks:
   proxy:
     driver: bridge
     name: proxy
-
