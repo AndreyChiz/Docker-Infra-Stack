@@ -27,7 +27,3 @@ RUN mkdir -p /usr/libexec/docker/cli-plugins \
 
 USER jenkins
 
-# ----------------- Проверка версий -----------------
-RUN docker version \
-    && docker buildx version \
-    && docker compose version \
