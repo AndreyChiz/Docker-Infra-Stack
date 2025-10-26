@@ -9,6 +9,7 @@ services:
     volumes:
       - ./data/jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock # если будут Docker builds
+      # - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins:ro
     networks:
       - proxy
     labels:
