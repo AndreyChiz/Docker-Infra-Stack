@@ -121,18 +121,17 @@ pipeline {
                     ).trim()
                     if (changed) {
                         echo "🚀 Deploying postgres"
-                        // withCredentials([
-                        //     usernamePassword(
-                        //         credentialsId: 'postgres_cred',
-                        //         usernameVariable: 'PG_USER',
-                        //         passwordVariable: 'PG_PASS'
-                        //     )
-                        // ]) 
-                        {
+                        withCredentials([
+                            usernamePassword(
+                                credentialsId: 'postgres_cred',
+                                usernameVariable: 'PG_USER',
+                                passwordVariable: 'PG_PASS'
+                            )
+                        ]) {
                             sh """
                                 cd postgres
-                                # export PG_USER=${PG_USER}
-                                # export PG_PASS=${PG_PASS}
+                                export PG_USER=${PG_USER}
+                                export PG_PASS=${PG_PASS}
                                 docker-compose pull
                                 docker-compose up -d --remove-orphans
                             """
