@@ -3,7 +3,7 @@ services:
     container_name: postgres_db
     image: postgres:16-alpine3.19
     environment:
-      POSTGRES_DB: "postgress12"
+      POSTGRES_DB: "postgress122"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres123"
       PGDATA: "/var/lib/postgresql/data/pgdata"
