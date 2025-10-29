@@ -121,13 +121,14 @@ pipeline {
                     ).trim()
                     if (changed) {
                         echo "🚀 Deploying postgres"
-                        withCredentials([
-                            usernamePassword(
-                                credentialsId: 'postgres_cred',
-                                usernameVariable: 'PG_USER',
-                                passwordVariable: 'PG_PASS'
-                            )
-                        ]) {
+                        // withCredentials([
+                        //     usernamePassword(
+                        //         credentialsId: 'postgres_cred',
+                        //         usernameVariable: 'PG_USER',
+                        //         passwordVariable: 'PG_PASS'
+                        //     )
+                        // ]) 
+                        {
                             sh """
                                 cd postgres
                                 export PG_USER=${PG_USER}
