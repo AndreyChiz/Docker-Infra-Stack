@@ -131,8 +131,8 @@ pipeline {
                         {
                             sh """
                                 cd postgres
-                                export PG_USER=${PG_USER}
-                                export PG_PASS=${PG_PASS}
+                                # export PG_USER=${PG_USER}
+                                # export PG_PASS=${PG_PASS}
                                 docker-compose pull
                                 docker-compose up -d --remove-orphans
                             """
