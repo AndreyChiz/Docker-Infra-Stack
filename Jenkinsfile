@@ -36,8 +36,8 @@ pipeline {
                                 cd docker_registry
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker-compose pull
-                                docker-compose up -d --remove-orphans
+                                docker compose pull
+                                docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -68,8 +68,8 @@ pipeline {
                                 cd jenkins
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker-compose pull
-                                docker-compose up -d --remove-orphans
+                                docker compose pull
+                                docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -100,8 +100,8 @@ pipeline {
                                 cd monitoring
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker-compose pull
-                                docker-compose up -d --remove-orphans
+                                docker compose pull
+                                docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -132,8 +132,8 @@ pipeline {
                                 cd postgres
                                 export PG_USER=${PG_USER}
                                 export PG_PASS=${PG_PASS}
-                                docker-compose pull
-                                docker-compose up -d --remove-orphans
+                                docker compose pull
+                                docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -164,8 +164,8 @@ pipeline {
                                 cd traefik
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker-compose pull
-                                docker-compose up -d --remove-orphans
+                                docker compose pull
+                                docker compose up -d --remove-orphans
                             """
                         }
                     } else {
