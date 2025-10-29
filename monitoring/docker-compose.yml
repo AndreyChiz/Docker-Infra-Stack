@@ -2,7 +2,7 @@ services:
   prometheus:
     image: prom/prometheus
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /srv/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - proxy
     restart: unless-stopped
@@ -14,7 +14,7 @@ services:
       - "3001:3000" # только этот доступен снаружи
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - /srv/docker/grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
       - proxy
     depends_on:
@@ -32,7 +32,7 @@ services:
     networks:
       - proxy
     volumes:
-      - ./loki/config.yaml:/etc/loki/config.yaml:ro
+      - /srv/docker/loki/config.yaml:/etc/loki/config.yaml:ro
     ports:
       - "3100:3100"
     restart: unless-stopped
@@ -46,7 +46,7 @@ services:
       - SYS_ADMIN
       - DAC_READ_SEARCH
     volumes:
-      - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /srv/docker/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
       - /var/log:/var/log:ro
 
       # - /var/lib/docker/containers:/var/lib/docker/containers:ro
@@ -65,7 +65,7 @@ services:
     networks:
       - proxy
     volumes:
-      - ./tempo/tempo-config.yaml:/etc/tempo-config.yaml:ro
+      - /srv/docker/tempo/tempo-config.yaml:/etc/tempo-config.yaml:ro
     command: ["--config.file=/etc/tempo-config.yaml"]
     restart: unless-stopped
 
