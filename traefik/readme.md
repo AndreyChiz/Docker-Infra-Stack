@@ -1,6 +1,4 @@
-
-
-### Переменные среды для всех пользователей 
+### Переменные среды для всех пользователей
 
 ```sh
 sudo nano /etc/profile.d/chiz-work-gd-env.sh
@@ -10,14 +8,14 @@ sudo nano /etc/profile.d/chiz-work-gd-env.sh
 #!/bin/sh
 
 # Основной хост сервиса
-export X_HOST_DOMAIN="chiz.work.gd"
+export X_HOST_DOMAIN="$HOST"
 ```
 
 ```sh
 sudo chmod +x /etc/profile.d/chiz-work-gd-env.sh
 ```
 
-```sh 
-docker-compose -f docker-compose.yaml -f whoami.yml up -d    
-# docker-compose -f docker-compose.yaml -f whoami.yml down   
+```sh
+docker-compose -f docker-compose.yaml -f whoami.yml up -d
+# docker-compose -f docker-compose.yaml -f whoami.yml down
 ```

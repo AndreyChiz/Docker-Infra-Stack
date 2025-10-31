@@ -56,21 +56,18 @@ services:
 
       # ────────────── Tracing ──────────────
 
-
       - "--tracing.otlp=true"
       - "--tracing.otlp.grpc.insecure=true"
       - "--tracing.serviceName=traefik"
-      - "--tracing.otlp.grpc.endpoint=tempo:4317"   # gRPC OTLP
-      - "--tracing.otlp.http.endpoint=tempo:4318"   # HTTP OTLP (необязательно)
+      - "--tracing.otlp.grpc.endpoint=tempo:4317" # gRPC OTLP
+      - "--tracing.otlp.http.endpoint=tempo:4318" # HTTP OTLP (необязательно)
       - "--tracing.sampleRate=1.0"
-
-
 
       # ────────────── dashboard router / middleware ──────────────
     labels:
       - "traefik.enable=true"
 
-      - "traefik.http.routers.dashboard.rule=Host(`dev.chiz.work.gd`)"
+      - "traefik.http.routers.dashboard.rule=Host(`dev.${HOST}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
@@ -80,11 +77,7 @@ services:
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "/srv/docker/data/dynamic:/etc/traefik/:ro"
-      - "/srv/docker/data/letsencrypt/acme.json:/letsencrypt/acme.json" # RW
-      - "/srv/docker/data/certs:/certs:ro"
+      - "/srv/docker/traefik/data/dynamic:/etc/traefik/:ro"
+      - "/srv/docker/traefik/data/letsencrypt/acme.json:/letsencrypt/acme.json" # RW
+      - "/srv/docker/traefik/data/certs:/certs:ro"
 
-networks:
-  proxy:
-    driver: bridge
-    name: proxy

@@ -13,7 +13,7 @@ services:
       - /srv/docker/auth:/auth:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.registry.rule=Host(`reg.chiz.work.gd`)"
+      - "traefik.http.routers.registry.rule=Host(`reg.$HOST`)"
       - "traefik.http.routers.registry.entrypoints=websecure"
       - "traefik.http.services.registry.loadbalancer.server.port=5000"
       - "traefik.http.routers.registry.tls.certresolver=le"
@@ -25,7 +25,7 @@ services:
       # Middleware: CORS
       - "traefik.http.middlewares.registry-cors.headers.accessControlAllowMethods=GET,POST,PUT,PATCH,DELETE,OPTIONS,PUSH,PULL"
       - "traefik.http.middlewares.registry-cors.headers.accessControlAllowHeaders=Authorization,Content-Type"
-      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowOriginList=https://reg.chiz.work.gd"
+      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowOriginList=https://reg.$HOST"
       - "traefik.http.middlewares.registry-cors.headers.accessControlAllowCredentials=true"
       - "traefik.http.middlewares.registry-cors.headers.accessControlMaxAge=1728000"
 
@@ -38,14 +38,14 @@ services:
     restart: unless-stopped
     environment:
       REGISTRY_TITLE: chiz_registry
-      REGISTRY_URL: https://reg.chiz.work.gd
+      REGISTRY_URL: https://reg.$HOST
       REGISTRY_BASIC_AUTH: "true"
       REGISTRY_UI_BASE: /ui/
     depends_on:
       - registry
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.registry-ui.rule=Host(`reg.chiz.work.gd`) && PathPrefix(`/ui`)"
+      - "traefik.http.routers.registry-ui.rule=Host(`reg.$HOST`) && PathPrefix(`/ui`)"
       - "traefik.http.routers.registry-ui.entrypoints=websecure"
       - "traefik.http.services.registry-ui.loadbalancer.server.port=80"
       - "traefik.http.routers.registry-ui.tls.certresolver=le"
@@ -54,7 +54,3 @@ services:
     networks:
       - proxy
 
-networks:
-  proxy:
-    driver: bridge
-    name: proxy

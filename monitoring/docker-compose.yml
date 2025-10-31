@@ -21,7 +21,7 @@ services:
       - prometheus
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.chiz.work.gd`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.$HOST`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=le"
@@ -53,12 +53,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
       - /var/lib/containerd:/var/lib/containerd:ro
-      
+
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
     command: -config.file=/etc/promtail/config.yaml
     restart: unless-stopped
-
 
   tempo:
     image: grafana/tempo
@@ -68,7 +67,6 @@ services:
       - /srv/docker/tempo/tempo-config.yaml:/etc/tempo-config.yaml:ro
     command: ["--config.file=/etc/tempo-config.yaml"]
     restart: unless-stopped
-
 
   node_exporter:
     image: prom/node-exporter:latest
@@ -107,7 +105,3 @@ services:
 volumes:
   grafana-storage:
 
-networks:
-  proxy:
-    driver: bridge
-    name: proxy

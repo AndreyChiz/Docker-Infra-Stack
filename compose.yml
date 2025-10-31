@@ -1,0 +1,12 @@
+
+include:
+  - ./traefik/docker-compose.yaml
+  - ./docker_registry/docker-compose.yaml
+  - ./jenkins/docker-compose.yaml
+  - ./monitoring/docker-compose.yml
+  - ./postgres/docker-compose.yaml
+
+# Создание сети один раз
+networks:
+  proxy:
+    driver: bridge

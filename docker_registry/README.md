@@ -1,9 +1,7 @@
 # Содержание
-- [Установка и запуска](#установка-и-запуска)
-- [Удаление образов](#удаление-образов)
 
-
-
+-   [Установка и запуска](#установка-и-запуска)
+-   [Удаление образов](#удаление-образов)
 
 ## Установка и запуска
 
@@ -89,24 +87,24 @@ sudo docker build -t chiz-work-test:777 .
 ```
 
 ```sh
-sudo docker tag chiz-work-test:777 chiz.work.gd/chiz-work-test:777
-sudo docker push chiz.work.gd/chiz-work-test:777
+sudo docker tag chiz-work-test:777 $HOST/chiz-work-test:777
+sudo docker push $HOST/chiz-work-test:777
 ```
 
+## Удаление образов
 
-## Удаление образов 
 ### Установка cli утилиты
 
 ```sh
-curl -LO https://github.com/genuinetools/reg/releases/download/v0.14.0/reg-linux-arm64       
+curl -LO https://github.com/genuinetools/reg/releases/download/v0.14.0/reg-linux-arm64
 chmod +x reg-linux-arm64
 sudo mv reg-linux-arm64 /usr/local/bin/reg
 ```
 
-```sh 
-reg -u achi -p 123  ls reg.chiz.work.gd
+```sh
+reg -u achi -p 123  ls reg.$HOST
 
-Repositories for reg.chiz.work.gd
+Repositories for reg.$HOST
 REPO                TAGS
 chiz-api-gateway    0.0.1a, 0.0.2a, 0.0.3a
 chiz-work-test      777
@@ -114,33 +112,32 @@ gateway             latest
 ```
 
 ```sh
-reg -u achi -p 123 rm reg.chiz.work.gd/chiz-api-gateway:0.0.1a
-reg -u achi -p 123 rm reg.chiz.work.gd/chiz-api-gateway:0.0.2a
+reg -u achi -p 123 rm reg.$HOST/chiz-api-gateway:0.0.1a
+reg -u achi -p 123 rm reg.$HOST/chiz-api-gateway:0.0.2a
 
 
 #После удаления запускаем garbage
 docker stop chiz-docker-registry
 docker run --rm \
-  -v /home/www/src/chiz.work.gd-k8s/ext_env/containered/docker_registry/registry_data/:/var/lib/registry \
+  -v /home/www/src/$HOST-k8s/ext_env/containered/docker_registry/registry_data/:/var/lib/registry \
   registry:2 garbage-collect /etc/docker/registry/config.yml
 docker start chiz-docker-registry
 
 ```
 
 ```sh
- docker exec -it chiz-docker-registry registry garbage-collect /etc/docker/registry/config.yml  
- ```
+ docker exec -it chiz-docker-registry registry garbage-collect /etc/docker/registry/config.yml
+```
 
+### Чтобы локально не стягивать образы не через интернет
 
- ### Чтобы локально не стягивать образы не через интернет
+```sh
+sudo nano /etc/hosts
+```
 
- ```sh
- sudo nano /etc/hosts
- ```
-
- ```sh
- 127.0.0.1       my-xi-server localhost.localdomain localhost
+```sh
+127.0.0.1       my-xi-server localhost.localdomain localhost
 ::1             localhost localhost.localdomain
-127.0.0.1 chiz.work.gd
-127.0.0.1 reg.chiz.work.gd
+127.0.0.1 $HOST
+127.0.0.1 reg.$HOST
 ```
