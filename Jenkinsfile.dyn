@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    environment {
+        DOCKER_BUILDKIT = "1"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "🔄 Checking out code..."
+                checkout scm
+            }
+        }
+
+        stage('Deploy Services') {
+            steps {
+                script {
+                    def services = [
+                        docker_registry: [path: 'docker_registry/docker-compose.yaml', cred: 'docker_registry_cred'],
+                        jenkins:        [path: 'jenkins/docker-compose.yaml', cred: 'jenkins_cred'],
+                        monitoring:     [path: 'monitoring/docker-compose.yml', cred: 'monitoring_cred'],
+                        postgres:       [path: 'postgres/docker-compose.yaml', cred: 'postgres_cred'],
+                        traefik:        [path: 'traefik/docker-compose.yaml', cred: 'traefik_cred']
+                    ]
+
+                    services.each { service, data ->
+                        def changed = sh(
+                            script: "git diff --name-only HEAD~1 HEAD | grep -E '${data.path}' || true",
+                            returnStdout: true
+                        ).trim()
+
+                        if (changed) {
+                            echo "🚀 Deploying ${service} because changes detected"
+                            withCredentials([usernamePassword(credentialsId: data.cred, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                                sh """
+                                    cd ${service}
+                                    export DOCKER_USER=${DOCKER_USER}
+                                    export DOCKER_PASS=${DOCKER_PASS}
+                                    docker-compose pull
+                                    docker-compose up -d --remove-orphans
+                                """
+                            }
+                        } else {
+                            echo "⏭ Skipping ${service}, no changes in ${data.path}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "✅ Pipeline finished."
+            cleanWs()
+        }
+        failure {
+            echo "❌ Pipeline failed!"
+        }
+    }
+}
