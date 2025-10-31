@@ -9,8 +9,8 @@ services:
       REGISTRY_AUTH_HTPASSWD_REALM: "Private chiz Docker Registry"
       REGISTRY_STORAGE_DELETE_ENABLED: true
     volumes:
-      - /srv/docker/registry_data:/var/lib/registry
-      - /srv/docker/auth:/auth:ro
+      - /srv/docker/docker_registry/registry_data:/var/lib/registry
+      - /srv/docker/docker_registry/auth:/auth:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.registry.rule=Host(`reg.$HOST`)"
@@ -53,4 +53,3 @@ services:
       - "traefik.http.routers.registry-ui.middlewares=strip-ui"
     networks:
       - proxy
-
