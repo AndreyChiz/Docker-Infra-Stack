@@ -19,7 +19,7 @@ services:
     image: prometheuscommunity/postgres-exporter:latest
     restart: unless-stopped
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres123@postgres:5432/?sslmode=disable"
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres_db:5432/postgress?sslmode=disable"
 
     networks:
       - proxy
