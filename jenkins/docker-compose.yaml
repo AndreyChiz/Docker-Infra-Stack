@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     user: root
     volumes:
-      - /srv/docker/data/jenkins:/var/jenkins_home
+      - /srv/docker/jenkins/data/jenkins:/var/jenkins_home
       - /srv/docker:/srv/docker
       - /var/run/docker.sock:/var/run/docker.sock # если будут Docker builds
       # - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins:ro
@@ -15,12 +15,10 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.jenkins.rule=Host(`jenkins.chiz.work.gd`)"
+      - "traefik.http.routers.jenkins.rule=Host(`jenkins.$HOST`)"
       - "traefik.http.routers.jenkins.entrypoints=websecure"
       - "traefik.http.routers.jenkins.tls=true"
       - "traefik.http.routers.jenkins.tls.certresolver=le"
       - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
 
-networks:
-  proxy:
-    external: true
+

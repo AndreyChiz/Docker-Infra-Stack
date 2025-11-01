@@ -6,6 +6,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
+    jq \
     gnupg \
     lsb-release \
     && install -m 0755 -d /etc/apt/keyrings
@@ -26,4 +27,3 @@ RUN mkdir -p /usr/libexec/docker/cli-plugins \
     && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
 USER jenkins
-

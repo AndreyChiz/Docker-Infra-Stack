@@ -1,27 +1,29 @@
 services:
   prometheus:
     image: prom/prometheus
+    container_name: monitoring-prometheus
     volumes:
-      - /srv/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /srv/docker/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - proxy
     restart: unless-stopped
-    # порт 9090 не пробрасываем наружу — он доступен только из сети monitoring
+
 
   grafana:
     image: grafana/grafana
+    container_name: monitoring-grafana
     ports:
-      - "3001:3000" # только этот доступен снаружи
+      - "3001:3000" 
     volumes:
       - grafana-storage:/var/lib/grafana
-      - /srv/docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - /srv/docker/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
       - proxy
     depends_on:
       - prometheus
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.chiz.work.gd`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.$HOST`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=le"
@@ -29,16 +31,18 @@ services:
 
   loki:
     image: grafana/loki
+    container_name: monitoring-loki
     networks:
       - proxy
     volumes:
-      - /srv/docker/loki/config.yaml:/etc/loki/config.yaml:ro
+      - /srv/docker/monitoring/loki/config.yaml:/etc/loki/config.yaml:ro
     ports:
       - "3100:3100"
     restart: unless-stopped
 
   promtail:
     image: grafana/promtail:latest
+    container_name: monitoring-promtail
     networks:
       - proxy
     privileged: true
@@ -46,29 +50,28 @@ services:
       - SYS_ADMIN
       - DAC_READ_SEARCH
     volumes:
-      - /srv/docker/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /srv/docker/monitoring/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
       - /var/log:/var/log:ro
 
       # - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
       - /var/lib/containerd:/var/lib/containerd:ro
-      
+
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
     command: -config.file=/etc/promtail/config.yaml
     restart: unless-stopped
 
-
   tempo:
     image: grafana/tempo
+    container_name: monitoring-tempo
     networks:
       - proxy
     volumes:
-      - /srv/docker/tempo/tempo-config.yaml:/etc/tempo-config.yaml:ro
+      - /srv/docker/monitoring/tempo/tempo-config.yaml:/etc/tempo-config.yaml:ro
     command: ["--config.file=/etc/tempo-config.yaml"]
     restart: unless-stopped
-
 
   node_exporter:
     image: prom/node-exporter:latest
@@ -106,8 +109,3 @@ services:
 
 volumes:
   grafana-storage:
-
-networks:
-  proxy:
-    driver: bridge
-    name: proxy

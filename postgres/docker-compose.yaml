@@ -29,7 +29,3 @@ services:
 volumes:
   db-data:
 
-networks:
-  proxy:
-    driver: bridge
-    name: proxy

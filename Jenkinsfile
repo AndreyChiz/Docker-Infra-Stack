@@ -15,6 +15,16 @@ pipeline {
             }
         }
 
+        stage('Set Variables') {
+            steps {
+                script {
+                    env.HOST="chiz.work.gd"
+                    echo "⚠️ HOST=${env.HOST}"
+
+                }
+            }
+        }
+
         // ----------------- docker_registry -----------------
         stage('Deploy docker_registry') {
             steps {
@@ -36,8 +46,8 @@ pipeline {
                                 cd docker_registry
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker compose pull
-                                docker compose up -d --remove-orphans
+                                export COMPOSE_PROJECT_NAME=docker_registry
+                                HOST=$HOST docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -68,8 +78,8 @@ pipeline {
                                 cd jenkins
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker compose pull
-                                docker compose up -d --remove-orphans
+                                export COMPOSE_PROJECT_NAME=jenkins
+                                HOST=$HOST docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -100,8 +110,8 @@ pipeline {
                                 cd monitoring
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker compose pull
-                                docker compose up -d --remove-orphans
+                                export COMPOSE_PROJECT_NAME=monitoring
+                                HOST=$HOST docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -132,8 +142,8 @@ pipeline {
                                 cd postgres
                                 export PG_USER=${PG_USER}
                                 export PG_PASS=${PG_PASS}
-                                docker compose pull
-                                docker compose up -d --remove-orphans
+                                export COMPOSE_PROJECT_NAME=postgres
+                                HOST=$HOST docker compose up -d --remove-orphans
                             """
                         }
                     } else {
@@ -164,8 +174,8 @@ pipeline {
                                 cd traefik
                                 export DOCKER_USER=${DOCKER_USER}
                                 export DOCKER_PASS=${DOCKER_PASS}
-                                docker compose pull
-                                docker compose up -d --remove-orphans
+                                export COMPOSE_PROJECT_NAME=traefik
+                                HOST=$HOST docker compose up -d --remove-orphans
                             """
                         }
                     } else {
