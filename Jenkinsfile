@@ -15,6 +15,16 @@ pipeline {
             }
         }
 
+        stage('Set Variables') {
+            steps {
+                script {
+                    env.HOST="chiz.work.gd"
+                    echo "⚠️ HOST=${env.HOST}"
+
+                }
+            }
+        }
+
         // ----------------- docker_registry -----------------
         stage('Deploy docker_registry') {
             steps {
