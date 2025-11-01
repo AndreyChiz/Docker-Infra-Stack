@@ -10,7 +10,7 @@ services:
       REGISTRY_STORAGE_DELETE_ENABLED: true
     volumes:
       - /srv/docker/docker_registry/registry_data:/var/lib/registry
-      - /srv/docker/docker_registry/auth:/auth:ro
+      - /srv/docker/docker_registry/auth:/auth:ro #TODO move creds in secrets
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.registry.rule=Host(`reg.$HOST`)"
