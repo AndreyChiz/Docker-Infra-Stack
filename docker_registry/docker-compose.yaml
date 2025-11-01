@@ -1,7 +1,7 @@
 services:
   registry:
     image: registry:2
-    container_name: chiz-docker-registry
+    container_name: docker_registry
     restart: unless-stopped
     environment:
       REGISTRY_AUTH: htpasswd
@@ -34,7 +34,7 @@ services:
 
   registry-ui:
     image: joxit/docker-registry-ui:latest
-    container_name: chiz-docker-registry-ui
+    container_name: docker_registry-ui
     restart: unless-stopped
     environment:
       REGISTRY_TITLE: chiz_registry
