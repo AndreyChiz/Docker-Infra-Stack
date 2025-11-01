@@ -1,6 +1,10 @@
-/etc/docker/daemon.json
+Simply server stack with metriks, logs, traces, database, private_docker_registry and dynamic server Traefik
 
 ## Quick start
+
+### Pre-Install
+
+You need to hawe the installed docker with docker compose (use docker docs) before installing.
 
 ### Install in dev workspace
 
@@ -31,14 +35,13 @@ git clone -b dev git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
 
 for use without CICD:
 
-1. Change localhost for you dns name change HOST=localhost to host=<YOUR_HOST_DNS>
-2. Do **"Install in dev workspace"**
-3. change in jenkinsfile env.HOST="chiz.work.gd" to env.HOST="<YOUR_HOST_DNS>"
-4. Create job in jenkins ui and set git trigger like in standart flow
-
+1. set the varible in /scripts/run.sh --> export HOST="<YOUR_HOST_DNS>"
+2. set the varible in /Jenkinsfile --> env.HOST="<YOUR_HOST_DNS>"
+3. RUN: 
 ```sh
 sudo mkdir /srv/docker
 sudo chown $USER:$USER -R /srv/docker
 git clone  git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
 /srv/docker/scripts/run.sh
 ```
+4. Create job in jenkins ui and set git trigger like in standart flow
