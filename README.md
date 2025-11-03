@@ -1,61 +1,64 @@
-Simply server stack with metriks, logs, traces, database, private_docker_registry and dynamic server Traefik
+# What is this
 
-## Quick start
+A simple server stack with metrics, logs, traces, a database, a private Docker registry, and Traefik.
 
-### Pre-Install
+# Quick Start
 
-You need to hawe the installed docker with docker compose (use docker docs) before installing.
+## Pre-Installation
 
-### Install in dev workspace
+- You need to have Docker and Docker Compose installed (use the [Docker docs](https://docs.docker.com/) for guidance) before installing.
+- You need to have a public DNS (`<YOUR_DNS>` like `vasya_pupkin.ru`, for example).
+- You need to have the following AAA records:
+  - `reg.<YOUR_DNS>`
+  - `grafana.<YOUR_DNS>`
+  - `traefik.<YOUR_DNS>`
+  - `jenkins.<YOUR_DNS>`
 
-For install infra in test/stage/dev/local workspace use this command
-the all parts of system wil bee awalible in licalhost
+😎 *Or set `<YOUR_DNS>` to "localhost" and use everything locally without DNS and AAA records.* 😎
+
+## Installation
+
+1. Set the environment variables:
 
 ```sh
-sudo mkdir /srv/docker
-chown $USER:$USER -R /srv/docker
-git clone -b dev git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
-./scripts/pipeline_run_dev
+sudo tee /etc/profile.d/server_env.sh > /dev/null <<'EOF'
+export HOST=<YOUR_DNS>
+export EMAIL=<YOUR_EMAIL>
+
+# Example
+# export HOST=chiz.work.gd
+# export EMAIL=andrey.chizhov.dev@gmail.com
+EOF
+
+sudo chmod +x /etc/profile.d/server_env.sh
+source /etc/profile.d/server_env.sh
+printenv HOST EMAIL
 ```
 
-#### List of awalible resources
 
--   docker_registry
-    https://reg.localhost/ui - ui
-    https://reg.localhost/v2/ - api
--   grafana
-    https://grafana.localhost/grafana
--   traefik
-    https://traefik/dashboard/
--   jenkins
-    https://jenkins.localhost
-    _all metrics, traces, logs will bee awalible in grafana_
+2. Install the stack
 
-### Use in CICD
-
-for use without CICD:
-
-1. set the varible in /scripts/run.sh --> export HOST="<YOUR_HOST_DNS>"
-2. set the varible in /Jenkinsfile --> env.HOST="<YOUR_HOST_DNS>"
-3. RUN: 
 ```sh
 sudo mkdir /srv/docker
 sudo chown $USER:$USER -R /srv/docker
 git clone  git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
 /srv/docker/scripts/run.sh
 ```
-4. Create job in jenkins ui and set git trigger like in standart flow
 
-###
-```sh
-sudo tee /etc/profile.d/server_env.sh > /dev/null <<'EOF'
-export HOST=chiz.work.gd
-export DOMAIN=work.gd
-export EMAIL=andrey.chizhov.dev@gmail.com
-EOF
+## A few moment later...
 
-sudo chmod +x /etc/profile.d/server_env.sh
-source /etc/profile.d/server_env.sh
-printenv HOST DOMAIN EMAIL
+### You can use the
 
-```
+#### Awalible resources
+
+-   docker_registry
+    https://reg.<YOUR_DNS>/ui - ui
+    https://reg.<YOUR_DNS>t/v2/ - api
+-   grafana
+    https://grafana.<YOUR_DNS>/grafana
+-   traefik
+    https://traefik.<YOUR_DNS>/dashboard/
+-   jenkins
+    https://jenkins.<YOUR_DNS>
+
+    *_all metrics, traces, logs will bee awalible in grafana_*
