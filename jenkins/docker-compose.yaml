@@ -6,6 +6,8 @@ services:
     container_name: jenkins
     restart: unless-stopped
     user: root
+    environment:
+      - HOST=$HOST
     volumes:
       - /srv/docker/jenkins/data/jenkins:/var/jenkins_home
       - /srv/docker:/srv/docker
@@ -20,5 +22,3 @@ services:
       - "traefik.http.routers.jenkins.tls=true"
       - "traefik.http.routers.jenkins.tls.certresolver=le"
       - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
-
-

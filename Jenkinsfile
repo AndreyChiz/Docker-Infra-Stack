@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         DOCKER_BUILDKIT = "1"
-        HOST = "chiz.work.gd"
+        // HOST = "chiz.work.gd"
     }
 
     stages {
@@ -23,7 +23,8 @@ pipeline {
         stage('Set Variables') {
             steps {
                 script {
-                    echo "⚠️ HOST=${env.HOST}"
+                    // echo "⚠️ HOST=${env.HOST}"
+                    echo "⚠️ $HOST"
                 }
             }
         }

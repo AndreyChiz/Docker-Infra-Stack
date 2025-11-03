@@ -45,3 +45,17 @@ git clone  git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
 /srv/docker/scripts/run.sh
 ```
 4. Create job in jenkins ui and set git trigger like in standart flow
+
+###
+```sh
+sudo tee /etc/profile.d/server_env.sh > /dev/null <<'EOF'
+export HOST=chiz.work.gd
+export DOMAIN=work.gd
+export EMAIL=andrey.chizhov.dev@gmail.com
+EOF
+
+sudo chmod +x /etc/profile.d/server_env.sh
+source /etc/profile.d/server_env.sh
+printenv HOST DOMAIN EMAIL
+
+```
