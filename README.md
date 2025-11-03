@@ -2,11 +2,14 @@
 
 A simple server stack with metrics, logs, traces, a database, a private Docker registry, and Traefik.
 
+**_Simple as 1..2..3_**
+
+
 # Quick Start
 
 ## Pre-Installation
 
-- You need to have Docker and Docker Compose installed (use the [Docker docs](https://docs.docker.com/) for guidance) before installing.
+- You need to have Docker and Docker Compose installed (use the [Docker docs](https://docs.docker.com/engine/install/) for guidance) before installing.
 - You need to have a public DNS (`<YOUR_DNS>` like `vasya_pupkin.ru`, for example).
 - You need to have the following AAA records:
   - `reg.<YOUR_DNS>`
@@ -35,12 +38,16 @@ source /etc/profile.d/server_env.sh
 printenv HOST EMAIL
 ```
 
-
-2. Install the stack
-
+2. Create directory and .env with passwords as in .env.example
 ```sh
 sudo mkdir /srv/docker
 sudo chown $USER:$USER -R /srv/docker
+```
+
+
+3. Install the stack
+
+```sh
 git clone git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
 /srv/docker/scripts/bootstrap.sh
 ```
