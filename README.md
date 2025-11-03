@@ -41,8 +41,8 @@ printenv HOST EMAIL
 ```sh
 sudo mkdir /srv/docker
 sudo chown $USER:$USER -R /srv/docker
-git clone  git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
-/srv/docker/scripts/run.sh
+git clone git@github.com:AndreyChiz/Docker-Infra-Stack.git /srv/docker
+/srv/docker/scripts/bootstrap.sh
 ```
 
 ## A few moment later...

@@ -2,10 +2,12 @@ services:
   postgres:
     container_name: postgres_db
     image: postgres:16-alpine3.19
+    secrets:
+      - postgres_pass
     environment:
-      POSTGRES_DB: "postgress"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_pass
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - /srv/docker/postgres/db-data:/var/lib/postgresql/data
@@ -18,13 +20,24 @@ services:
   postgres_exporter:
     image: prometheuscommunity/postgres-exporter:latest
     restart: unless-stopped
+    secrets:
+      - postgres_pass
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres_db:5432/postgress?sslmode=disable"
+      DATA_SOURCE_USER: "${POSTGRES_USER}"
+      DATA_SOURCE_DB: "${POSTGRES_DB}"
+      DATA_SOURCE_HOST: "postgres_db"
+      DATA_SOURCE_PASS_FILE: /run/secrets/postgres_pass
+      DATA_SOURCE_PORT: "5432"
 
     networks:
       - proxy
     depends_on:
       - postgres
 
-volumes:
-  db-data:
+secrets:
+  postgres_db:
+    environment: POSTGRES_DB
+  postgres_user:
+    environment: POSTGRES_USER
+  postgres_pass:
+    environment: POSTGRES_PASS
