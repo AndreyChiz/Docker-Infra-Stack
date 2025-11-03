@@ -5,74 +5,87 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    secrets:
+      - dash_creds
     networks:
       - proxy
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"
-    secrets:
-      - DASH_USER
-      - DASH_PASS
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      DASH_USER=$(cat /run/secrets/DASH_USER) &&
-      DASH_PASS=$(cat /run/secrets/DASH_PASS) &&
-      htpasswd -nbB $DASH_USER $DASH_PASS > /tmp/.htpasswd &&
-      exec traefik \
-        --entryPoints.web.address=:80 \
-        --entryPoints.web.http.redirections.entrypoint.to=websecure \
-        --entryPoints.web.http.redirections.entrypoint.scheme=https \
-        --entryPoints.web.http.redirections.entrypoint.permanent=true \
-        --entryPoints.websecure.address=:443 \
-        --entryPoints.websecure.http.tls.certresolver=le \
-        --certificatesresolvers.le.acme.email=xdg3@ail.com \
-        --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json \
-        --certificatesresolvers.le.acme.httpchallenge.entrypoint=web \
-        --providers.docker=true \
-        --providers.docker.exposedbydefault=false \
-        --providers.docker.network=proxy \
-        --providers.file.directory=/etc/traefik/ \
-        --providers.file.watch=true \
-        --api.dashboard=true \
-        --api.insecure=false \
-        --log.level=DEBUG \
-        --log.format=genericCLF \
-        --accesslog=true \
-        --accesslog.format=genericCLF \
-        --entrypoints.metrics.address=:8082 \
-        --metrics.prometheus=true \
-        --metrics.prometheus.entrypoint=metrics \
-        --metrics.prometheus.addrouterslabels=true \
-        --metrics.prometheus.addserviceslabels=true \
-        --tracing.otlp=true \
-        --tracing.otlp.grpc.insecure=true \
-        --tracing.serviceName=traefik \
-        --tracing.otlp.grpc.endpoint=tempo:4317 \
-        --tracing.otlp.http.endpoint=tempo:4318 \
-        --tracing.sampleRate=1.0
+    command:
+      # ────────────── entryPoints ──────────────
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entryPoints.web.http.redirections.entryPoint.permanent=true"
+      - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.websecure.http.tls.certresolver=le"
 
+      # ────────────── certificatesResolvers ──────────────
+
+      - "--certificatesresolvers.le.acme.email=xdg3@ail.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+
+      # ────────────── providers ──────────────
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--providers.file.directory=/etc/traefik/"
+      - "--providers.file.watch=true"
+
+      # ────────────── api / logs ──────────────
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--log.level=DEBUG"
+      # - "--log.format=common"
+      - "--log.format=genericCLF"
+      - "--accesslog=true"
+      # - "--accesslog.format=common"
+      - "--accesslog.format=genericCLF"
+
+      # ────────────── Metriks ──────────────
+
+      - "--entrypoints.metrics.address=:8082"
+      # ... other command arguments ...
+      - "--metrics.prometheus=true"
+      # Optionally change the entry point metrics are exposed on (defaults to 'traefik')
+      - "--metrics.prometheus.entrypoint=metrics"
+      # Add labels to metrics for routers/services (can increase cardinality)
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addserviceslabels=true"
+
+      # ────────────── Tracing ──────────────
+
+      - "--tracing.otlp=true"
+      - "--tracing.otlp.grpc.insecure=true"
+      - "--tracing.serviceName=traefik"
+      - "--tracing.otlp.grpc.endpoint=tempo:4317" # gRPC OTLP
+      - "--tracing.otlp.http.endpoint=tempo:4318" # HTTP OTLP (необязательно)
+      - "--tracing.sampleRate=1.0"
+
+      # ────────────── dashboard router / middleware ──────────────
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${HOST}`)"
+
+      - "traefik.http.routers.dashboard.rule=Host(`dev.${HOST}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
+      # - "traefik.http.routers.dashboard.tls=true"
       - "traefik.http.routers.dashboard.tls.certresolver=le"
+
+      # - "traefik.http.middlewares.dashboard-auth.basicauth.users=achi:$$apr1$$pmhCKJMl$$r.2PcOMfvwB27/toVojgW0"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.usersFile=/run/secrets/dash_creds"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
-      - "traefik.http.middlewares.dashboard-auth.basicauth.usersfile=/tmp/.htpasswd"
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "/srv/docker/traefik/data/dynamic:/etc/traefik/:ro"
-      - "/srv/docker/traefik/data/letsencrypt/acme:/letsencrypt"
+      - "/srv/docker/traefik/data/letsencrypt/acme:/letsencrypt" # RW
       - "/srv/docker/traefik/data/certs:/certs:ro"
 
-networks:
-  proxy:
-    driver: bridge
 
 secrets:
-  DASH_USER:
-    external: true
-  DASH_PASS:
-    external: true
+  dash_creds:
+    environment: TRAEFIK_DASH_CREDS

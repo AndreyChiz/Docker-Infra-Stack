@@ -1,27 +1,21 @@
-version: "3.9"
-
 services:
   registry:
     image: registry:2
     container_name: docker_registry
     restart: unless-stopped
-    networks:
-      - proxy
     secrets:
-      - REGISTRY_USER
-      - REGISTRY_PASS
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      REG_USER=$(cat /run/secrets/REGISTRY_USER) &&
-      REG_PASS=$(cat /run/secrets/REGISTRY_PASS) &&
-      htpasswd -nbB $REG_USER $REG_PASS > /auth/htpasswd &&
-      exec registry
+      - regystry_creds
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: /run/secrets/regystry_creds
+      REGISTRY_AUTH_HTPASSWD_REALM: "Private chiz Docker Registry"
+      REGISTRY_STORAGE_DELETE_ENABLED: true
     volumes:
       - /srv/docker/docker_registry/registry_data:/var/lib/registry
-      - /srv/docker/docker_registry/auth:/auth:rw
+
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.registry.rule=Host(`reg.${HOST}`)"
+      - "traefik.http.routers.registry.rule=Host(`reg.$HOST`)"
       - "traefik.http.routers.registry.entrypoints=websecure"
       - "traefik.http.services.registry.loadbalancer.server.port=5000"
       - "traefik.http.routers.registry.tls.certresolver=le"
@@ -33,38 +27,36 @@ services:
       # Middleware: CORS
       - "traefik.http.middlewares.registry-cors.headers.accessControlAllowMethods=GET,POST,PUT,PATCH,DELETE,OPTIONS,PUSH,PULL"
       - "traefik.http.middlewares.registry-cors.headers.accessControlAllowHeaders=Authorization,Content-Type"
-      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowOriginList=https://reg.${HOST}"
+      - "traefik.http.middlewares.registry-cors.headers.accessControlAllowOriginList=https://reg.$HOST"
       - "traefik.http.middlewares.registry-cors.headers.accessControlAllowCredentials=true"
       - "traefik.http.middlewares.registry-cors.headers.accessControlMaxAge=1728000"
+
+    networks:
+      - proxy
 
   registry-ui:
     image: joxit/docker-registry-ui:latest
     container_name: docker_registry-ui
     restart: unless-stopped
-    networks:
-      - proxy
     environment:
       REGISTRY_TITLE: chiz_registry
-      REGISTRY_URL: https://reg.${HOST}
+      REGISTRY_URL: https://reg.$HOST
       REGISTRY_BASIC_AUTH: "true"
       REGISTRY_UI_BASE: /ui/
     depends_on:
       - registry
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.registry-ui.rule=Host(`reg.${HOST}`) && PathPrefix(`/ui`)"
+      - "traefik.http.routers.registry-ui.rule=Host(`reg.$HOST`) && PathPrefix(`/ui`)"
       - "traefik.http.routers.registry-ui.entrypoints=websecure"
       - "traefik.http.services.registry-ui.loadbalancer.server.port=80"
       - "traefik.http.routers.registry-ui.tls.certresolver=le"
       - "traefik.http.middlewares.strip-ui.stripprefix.prefixes=/ui"
       - "traefik.http.routers.registry-ui.middlewares=strip-ui"
+    networks:
+      - proxy
 
-networks:
-  proxy:
-    driver: bridge
 
 secrets:
-  REGISTRY_USER:
-    external: true
-  REGISTRY_PASS:
-    external: true
+  regystry_creds:
+    environment: DOCKER_REGYSTRY_CREDS
