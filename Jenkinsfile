@@ -33,14 +33,8 @@ pipeline {
 
         stage('Run All Services') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'privat_docker_registry_cred',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    // Запуск скрипта, который поднимает все docker-compose сервисы с прокидкой HOST
-                    sh './scripts/run.sh'
-                }
+                    sh './scripts/bootstrap.sh'
+
             }
         }
 

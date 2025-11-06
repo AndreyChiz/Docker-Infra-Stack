@@ -4,3 +4,4 @@ gitlub/volumes/gitlab/data/
 */data/
 */db-data/
 */auth/
+.env
