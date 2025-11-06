@@ -1,0 +1,78 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    container_name: keycloak
+    restart: unless-stopped
+    secrets:
+      - keycloak_admin_pass
+      - keycloak_db_pass
+      - keycloak_admin_username
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak_postgres_db
+      KC_DB_URL_DATABASE: "${KEYCLOAK_DB}"
+      KC_DB_USERNAME: "${KEYCLOAK_DB_USER}"
+      KC_DB_PASSWORD: "${KEYCLOAK_DB_PASS}" #TODO unsequre need solutuio
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME} #TODO unsequre need solutuio
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASS} #TODO unsequre need solutuio
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: true
+      # KC_HOSTNAME: auth.${HOST}
+      # KC_HOSTNAME_STRICT_HTTPS: true
+      KC_HTTP_RELATIVE_PATH: /
+      KC_FEATURES: token-exchange,admin-fine-grained-authz
+      # включить производительный режим
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_CACHE: local
+
+    command:
+      - start
+      - --hostname=auth.${HOST}
+      - --verbose
+    volumes:
+      - /srv/docker/infra/keycloak/data/keycloak_data:/opt/keycloak/data
+    depends_on:
+      - keycloak_postgres_db
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`auth.${HOST}`)"
+      - "traefik.http.routers.keycloak.entrypoints=websecure"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+      - "traefik.http.routers.keycloak.tls.certresolver=le"
+      - "traefik.http.middlewares.keycloak-cors.headers.accessControlAllowOriginList=https://${HOST}"
+      - "traefik.http.middlewares.keycloak-cors.headers.accessControlAllowMethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.keycloak-cors.headers.accessControlAllowHeaders=Authorization,Content-Type"
+      - "traefik.http.middlewares.keycloak-cors.headers.accessControlAllowCredentials=true"
+      - "traefik.http.routers.keycloak.middlewares=keycloak-cors"
+    networks:
+      - proxy
+      - keycloack
+
+  keycloak_postgres_db:
+    image: postgres:16-alpine
+    container_name: keycloak_db
+    restart: unless-stopped
+    secrets:
+      - keycloak_db_pass
+    environment:
+      POSTGRES_DB: "${KEYCLOAK_DB}"
+      POSTGRES_USER: "${KEYCLOAK_DB_USER}"
+      POSTGRES_PASSWORD_FILE: /run/secrets/keycloak_db_pass
+    volumes:
+      - /srv/docker/infra/keycloak/data/postgres_data:/var/lib/postgresql/data
+    networks:
+      - keycloack
+
+secrets:
+  keycloak_admin_pass:
+    environment: KEYCLOAK_ADMIN_PASS
+  keycloak_db_pass:
+    environment: KEYCLOAK_DB_PASS
+  keycloak_admin_username:
+    environment: KEYCLOAK_ADMIN_USERNAME
+
+networks:
+  keycloack:
+    driver: bridge

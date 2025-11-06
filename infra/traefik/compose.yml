@@ -81,9 +81,8 @@ services:
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "/srv/docker/infra/traefik/data/dynamic:/etc/traefik/:ro"
       - "/srv/docker/infra/traefik/data/letsencrypt/acme:/letsencrypt" # RW
-      - "/srv/docker/infra/traefik/data/certs:/certs:ro"
+
 
 secrets:
   dash_creds:
