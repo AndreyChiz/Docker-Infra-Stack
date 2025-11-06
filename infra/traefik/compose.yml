@@ -69,7 +69,7 @@ services:
     labels:
       - "traefik.enable=true"
 
-      - "traefik.http.routers.dashboard.rule=Host(`dev.${HOST}`)"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${HOST}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
       # - "traefik.http.routers.dashboard.tls=true"
@@ -81,9 +81,7 @@ services:
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "/srv/docker/traefik/data/dynamic:/etc/traefik/:ro"
-      - "/srv/docker/traefik/data/letsencrypt/acme:/letsencrypt" # RW
-      - "/srv/docker/traefik/data/certs:/certs:ro"
+      - "/srv/docker/infra/traefik/data/letsencrypt/acme:/letsencrypt" # RW
 
 
 secrets:
