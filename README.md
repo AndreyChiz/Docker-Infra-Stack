@@ -1,6 +1,6 @@
 # What is this
 
-A simple server stack with metrics, logs, traces, a database, a private Docker registry, and Traefik.
+A simple server stack with metrics, logs, traces, a database, a private Docker registry, and traefik with ACME TLS-managment.
 
 **_Simple as 1..2..3_**
 
