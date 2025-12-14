@@ -1,0 +1,25 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    restart: unless-stopped
+    environment:
+      - HOST=${HOST}
+    volumes:
+      - /srv/docker/infra/ollama/data:/root/.ollama
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ollama.rule=Host(`ai.${HOST}`)"
+      - "traefik.http.routers.ollama.entrypoints=websecure"
+      - "traefik.http.routers.ollama.tls=true"
+      - "traefik.http.routers.ollama.tls.certresolver=le"
+      - "traefik.http.services.ollama.loadbalancer.server.port=11434"
+
+volumes:
+  ollama:
+
+networks:
+  proxy:
+    external: true
