@@ -2,11 +2,11 @@
 
 include:
   - ./infra/traefik/compose.yml
-  - ./infra/docker_registry/compose.yml
-  - ./infra/jenkins/compose.yml
-  - ./infra/postgres/compose.yml
-  - ./infra/keycloak/compose.yml
-  - ./monitoring/compose.yml
+  # - ./infra/docker_registry/compose.yml
+  # - ./infra/jenkins/compose.yml
+  # - ./infra/postgres/compose.yml
+  # - ./infra/keycloak/compose.yml
+  # - ./monitoring/compose.yml
 
 
 networks:

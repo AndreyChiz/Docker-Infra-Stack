@@ -1,0 +1,63 @@
+services:
+  emqx:
+    image: emqx/emqx-enterprise:6.1.1
+    platform: linux/arm64
+    container_name: iot-mqtt
+    restart: unless-stopped
+    user: "1000:1000"
+
+    environment:
+      EMQX_NODE_NAME: emqx@iot-mqtt
+      EMQX_NODE__COOKIE: emqxsecretcookie
+      EMQX_DASHBOARD__DEFAULT_USERNAME: admin
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: admin123
+
+    ports:
+      - "1883:1883"     # MQTT TCP
+      - "8083:8083"     # MQTT WebSocket
+      - "18083:18083"   # Dashboard (для internal/Traefik)
+
+    volumes:
+      - emqx_data:/opt/emqx/data
+      - emqx_config:/opt/emqx/etc
+
+    networks:
+      - proxy
+
+    labels:
+      # ───── MQTT TCP (TLS passthrough) ─────
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.emqx-tcp.rule=HostSNI(`mqtt.$HOST`)"
+      - "traefik.tcp.routers.emqx-tcp.entrypoints=mqtt8883"
+      - "traefik.tcp.routers.emqx-tcp.tls.passthrough=true"
+      - "traefik.tcp.services.emqx-tcp.loadbalancer.server.port=8883"
+
+      # ───── MQTT plain TCP (не TLS) ─────
+      - "traefik.tcp.routers.emqx-plain.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.emqx-plain.entrypoints=mqtt1883"
+      - "traefik.tcp.services.emqx-plain.loadbalancer.server.port=1883"
+
+      # ───── Dashboard HTTP ─────
+      - "traefik.http.routers.emqx-dashboard.rule=Host(`mqtt.dash.$HOST`)"
+      - "traefik.http.routers.emqx-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.emqx-dashboard.tls=true"
+      - "traefik.http.routers.emqx-dashboard.tls.certresolver=le"
+      - "traefik.http.services.emqx-dashboard.loadbalancer.server.port=18083"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  emqx_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./emqx_data
+      o: bind
+  emqx_config:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./emqx_config
+      o: bind

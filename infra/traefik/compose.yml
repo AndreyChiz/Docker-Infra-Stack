@@ -22,6 +22,10 @@ services:
       - "--entryPoints.websecure.address=:443"
       - "--entryPoints.websecure.http.tls.certresolver=le"
 
+      # ────────────── imqpEntryPoints ──────────────
+      - "--entryPoints.mqtt1883.address=:1883/tcp"
+      - "--entryPoints.mqtt8883.address=:8883/tcp"
+
       # ────────────── certificatesResolvers ──────────────
 
       - "--certificatesresolvers.le.acme.email=xdg3@ail.com"
@@ -87,3 +91,4 @@ services:
 secrets:
   dash_creds:
     environment: TRAEFIK_DASH_CREDS
+

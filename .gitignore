@@ -1,4 +1,4 @@
 .env
-
-
+iot/mqtt/emqx_data/*
+iot/mqtt/emqx_config/*
 

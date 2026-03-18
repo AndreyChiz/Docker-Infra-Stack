@@ -9,12 +9,19 @@ services:
     container_name: nextcloud
     restart: unless-stopped
     volumes:
-      - /mnt/iron_hdd:/var/www/html/data
+      - /mnt/hdd/nextcloud/nextcloud_data:/var/www/html/data
     environment:
       - MYSQL_PASSWORD=nextcloudpass
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=nextcloud-db
+
+      - NEXTCLOUD_TRUSTED_DOMAINS=cloud.${HOST}
+      - OVERWRITEHOST=cloud.${HOST}
+      - OVERWRITEPROTOCOL=https
+      - OVERWRITECLIURL=https://cloud.${HOST}
+      - TRUSTED_PROXIES=traefik
+      - APACHE_DISABLE_REWRITE_IP=1
     depends_on:
       - nextcloud-db
     networks:
@@ -29,7 +36,7 @@ services:
 
   nextcloud-db:
     image: mariadb:latest
-    container_name: nextcloud-db
+    container_name: nextcloud-db  
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=rootpass
@@ -37,9 +44,7 @@ services:
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=nextcloudpass
     volumes:
-      - nextcloud-db:/var/lib/mysql
+      - /mnt/hdd/nextcloud/nextcloud_db:/var/lib/mysql
     networks:
       - proxy
 
-volumes:
-  nextcloud-db:
